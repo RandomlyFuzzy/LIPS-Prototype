@@ -1,14 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using UnityEngine;
 
 public class GetWordsAndPhonics : MonoBehaviour
 {
-    static Dictionary<string, string> store = new Dictionary<string, string>();
+    public static GetWordsAndPhonics curret;
+    public Dictionary<string, string> store = new Dictionary<string, string>();
     // Load All Phonics from dictionary
     void Start()
     {
@@ -25,64 +28,36 @@ public class GetWordsAndPhonics : MonoBehaviour
                 store[split[0]] = split[2];
             }
         }
-
+        curret = this;
     }
 
 
     public static string GetPhonics(string word)
     {
         word = word.Replace(".","");
-        if (store.ContainsKey(word))
+        if (curret.store.ContainsKey(word))
         {
-            return trimSpans(store[word]);
+            return trimSpans(curret.store[word]);
         }
 
-        //get word online
-        // Create a request for the URL.
-        System.Net.WebRequest request = System.Net.WebRequest.Create("https://dictionary.cambridge.org/dictionary/english/" + word);
-        // If required by the server, set the credentials.
-        request.Credentials = System.Net.CredentialCache.DefaultCredentials;
-        // Get the response.
-        System.Net.WebResponse response = request.GetResponse();
-        // Display the status.
-
-        // Get the stream containing content returned by the server.
-        // The using block ensures the stream is automatically closed.
-        using (StreamReader dataStream = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-        {
-            // Read the content.
-            string responseFromServer = dataStream.ReadToEnd();
-            string start = "<span class=\"pron dpron\">";
-            string replacement = "<span class=\"ipa dipa lpr-2 lpl-1\">";
-            string end = "</span>";
-            string repl = "<span class=\"sp dsp\">";
-            string s = responseFromServer.Substring(responseFromServer.IndexOf(start) + start.Length - 1);
-            s = s.Substring(s.IndexOf(">/<") + 1);
-            s = s.Substring(0, s.IndexOf(">/<") + 2);
-            s = s.Replace(replacement, "");
-            s = s.Replace(end, "");
-            s = s.Replace(repl, "");
-
-
-            store[word] = trimSpans(s);
-            if (s.Length > 30) return "//";
-
-
-            return trimSpans(s);
-            // Display the content.
-            //Console.WriteLine(responseFromServer);
-        }
-
-        // Close the response.
-        response.Close();
-
+        curret.StartCoroutine(curret.Upd(word, (wrd, phonetic) => {
+            curret.store[word] = phonetic.Trim();
+        }));
 
         return "//";
 
 
 
     }
-
+    IEnumerator Upd(string word, Action<string, string> callback)
+    {
+        using (WWW www = new WWW(@"http://92.237.222.105/view/GetPhonicsFromWord.php?word=" + word))
+        {
+            yield return www;
+            print(www.text);
+            callback(word, www.text);
+        }
+    }
     static string trimSpans(string input) {
         var m = Regex.Match(input, "<.*>");
         while (m.Success) { 

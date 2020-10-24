@@ -80,13 +80,12 @@ public class TextDisplayer : MonoBehaviour
                     }
                 }
                 string added = temp2.Substring(id) + temp.Substring(0,id2+1);
-                if(added != lastWord){
-                    string rel = (GetWordsAndPhonics.GetPhonics(added));
-                    phonics.text = rel;
+                string rel = (GetWordsAndPhonics.GetPhonics(added));
+                if (added != lastWord && rel != ""){
+                    phonics.text = rel.Trim();
                     ImageDisplayer.AddToQueue(PhonicDecoder.GetImages(GetWordsAndPhonics.GetPhonics(added)));
                 }
                 lastWord = added;
-
                 DisplayCurrentString();
             }catch (Exception ex) { }
         }

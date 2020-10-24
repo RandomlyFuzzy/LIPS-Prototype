@@ -24,14 +24,14 @@ public class SpeechRecognition : MonoBehaviour
 
         m_DictationRecognizer.DictationResult += (text, confidence) =>
         {
-            Debug.LogFormat("Dictation result: {0}", text);
+            //Debug.LogFormat("Dictation result: {0}", text);
             //m_Recognitions.text = text + "\n";
 
             //TextDisplayer.SetTextToDisplay(text);
         };
         m_DictationRecognizer.DictationHypothesis += (text) =>
         {
-            Debug.LogFormat("Dictation hypothesis: {0}", text);
+            //Debug.LogFormat("Dictation hypothesis: {0}", text);
             //m_Hypotheses.text = text;
             if (text.Length == 0) return;
 
