@@ -35,6 +35,7 @@ public class GetWordsAndPhonics : MonoBehaviour
     public static string GetPhonics(string word)
     {
         word = word.Replace(".","");
+        word = word.Trim();
         if (curret.store.ContainsKey(word))
         {
             return trimSpans(curret.store[word]);
