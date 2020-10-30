@@ -16,6 +16,7 @@ public class SpeechRecognition : MonoBehaviour
     private DictationRecognizer m_DictationRecognizer;
 
 
+
     string last = "";
     void Start()
     {
